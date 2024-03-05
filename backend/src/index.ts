@@ -3,7 +3,9 @@ import cors from 'cors'
 import bodyParser from 'body-parser'
 import dotenv from 'dotenv'
 
-import connection from './db/conection'
+
+import { connection } from './db/connection'
+import router from './routes/index'
 
 dotenv.config()
 
@@ -12,16 +14,18 @@ const port = process.env.PORT || 4000
 
 app.use(cors())
 app.use(bodyParser.json())
-app.use(bodyParser.urlencoded({ extended: true }))
-
+app.use(bodyParser.urlencoded({ extended: true })) 
+app.use('/api', router)
+ 
 app.get('/', (req: Request, res: Response) => {
     res.send('Hello, TypeScript Express!')
 })
 
 const start = async() => {
     try {
-        await connection.authenticate()
-        await connection.sync()
+        connection.initialize().then(() => {
+            console.log('Connection succesfull')
+        }).catch((error) => console.log(error))
 
         app.listen(port, () => {
             console.log(`Server running at http://localhost:${port}`)
@@ -31,4 +35,4 @@ const start = async() => {
     }
 }
 
-start();
+start()
